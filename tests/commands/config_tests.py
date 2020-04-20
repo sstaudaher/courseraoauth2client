@@ -17,8 +17,8 @@
 from courseraoauth2client import oauth2
 
 import argparse
-import cPickle
-import ConfigParser
+import pickle
+import configparser
 from mock import mock_open, MagicMock, patch
 import os
 import time
@@ -26,7 +26,7 @@ import time
 # Set up mocking of the `open` call. See http://www.ichimonji10.name/blog/6/
 from sys import version_info
 if version_info.major == 2:
-    import __builtin__ as builtins  # pylint:disable=import-error
+    import builtins as builtins  # pylint:disable=import-error
 else:
     import builtins  # pylint:disable=import-error
 
@@ -37,7 +37,7 @@ def test_compute_cache_filename_args_override():
     args.client_id = 'client_id'
     args.client_secret = 'fake-secret'
     args.scopes = 'fake scopes'
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.add_section('oauth2')
     cfg.set('oauth2', 'token_cache_base', '/tmp/not_cache')
     assert oauth2.build_oauth2('my_app', args, cfg)\
@@ -49,7 +49,7 @@ def test_compute_cache_filename():
     args.client_id = 'client_id'
     args.client_secret = 'fake-secret'
     args.scopes = 'fake scopes'
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.add_section('oauth2')
     cfg.set('oauth2', 'token_cache_base', '/tmp/cache')
     assert oauth2.build_oauth2('my_app', args, cfg)\
@@ -61,10 +61,10 @@ def test_cache_filename_sanitized():
     args.client_id = 'client_id'
     args.client_secret = 'fake-secret'
     args.scopes = 'fake scopes'
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.add_section('oauth2')
     cfg.set('oauth2', 'token_cache_base', '/tmp/cache')
-    print oauth2.build_oauth2('@weird$app name', args, cfg).token_cache_file
+    print(oauth2.build_oauth2('@weird$app name', args, cfg).token_cache_file)
     assert oauth2.build_oauth2('@weird$app name', args, cfg) \
         .token_cache_file == '/tmp/cache/_weird_app_name_oauth2_cache.pickle'
 
@@ -74,7 +74,7 @@ def test_compute_cache_filname_expanded_path():
     args.client_id = 'client_id'
     args.client_secret = 'fake-secret'
     args.scopes = 'fake scopes'
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.add_section('oauth2')
     cfg.set('oauth2', 'token_cache_base', '~/.coursera')
     computed = oauth2.build_oauth2('my_app', args, cfg).token_cache_file
@@ -86,7 +86,7 @@ def test_compute_cache_filname_path_no_double_slash():
     args.client_id = 'client_id'
     args.client_secret = 'fake-secret'
     args.scopes = 'fake scopes'
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.add_section('oauth2')
     cfg.set('oauth2', 'token_cache_base', '~/.coursera/')
     computed = oauth2.build_oauth2('my_app', args, cfg).token_cache_file
@@ -99,7 +99,7 @@ def test_compute_cache_filname_expanded_path_overrides():
     args.client_id = 'client_id'
     args.client_secret = 'fake-secret'
     args.scopes = 'fake scopes'
-    cfg = ConfigParser.ConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.add_section('oauth2')
     cfg.set('oauth2', 'token_cache_base', '~/.coursera')
     computed = oauth2.build_oauth2('my_app', args, cfg).token_cache_file
@@ -195,17 +195,17 @@ def test_build_authorization_url():
 
 def test_loading_cache():
     valid_tokens = {
-        'token': u'CiCptJ_07TeNA',
+        'token': 'CiCptJ_07TeNA',
         'expires': 1438815118.228845,
-        'refresh': u'STLuX5'
+        'refresh': 'STLuX5'
     }
 
     test_cases = [
         # TODO: figure out why this test isn't working.
         # ('valid_tokens', cPickle.dumps(valid_tokens), valid_tokens),
-        ('invalid pickle', cPickle.dumps(valid_tokens)[5:], None),
+        ('invalid pickle', pickle.dumps(valid_tokens)[5:], None),
         ('garbage', ';lkajsdf;lkjasdlfk;j', None),
-        ('bad object', cPickle.dumps({'weird': 'stuff'}), None),
+        ('bad object', pickle.dumps({'weird': 'stuff'}), None),
     ]
 
     for test_case in test_cases:
